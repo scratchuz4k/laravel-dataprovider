@@ -1,5 +1,4 @@
 {
-    "version": "1.0.0",
     "name": "scratchuz4k/laravel-dataprovider",
     "description": "This package allows you to query the db via requests",
     "license": "proprietary",
