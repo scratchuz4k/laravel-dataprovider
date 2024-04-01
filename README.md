@@ -2,6 +2,9 @@
 
 This package allows you to filter, sort and include eloquent relations based on a request. The `DataProvider` used in this package uses Laravel's default Eloquent builder and the Illuminate Request.
 
+```sh
+composer require scratchuz4k/laravel-dataprovider
+```
 ## Basic usage
 
 Just intanciate the provider and return its get method and you're good to go.
