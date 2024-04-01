@@ -9,7 +9,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Scratchuz4k\\LaravelDataprovider\\": "src/"
+            "Scratchuz4k\\Laravel\\": "src/"
         }
     },
     "authors": [
