@@ -17,5 +17,7 @@
             "name": "Marcos Ferreira",
             "email": "marcos_ferreira@outlook.pt"
         }
-    ]
+    ],    
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
