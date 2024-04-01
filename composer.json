@@ -1,0 +1,20 @@
+{
+    "name": "scratchuz4k/laravel-dataprovider",
+    "description": "This package allows you to query the db via requests",
+    "license": "proprietary",
+    "require": {
+        "laravel/framework": "^10",
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Scratchuz4k\\LaravelDataprovider\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Marcos Ferreira",
+            "email": "marcos_ferreira@outlook.pt"
+        }
+    ]
+}
