@@ -2,16 +2,21 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Arr;
-use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class DataProvider
 {
-    private $model;
-    private $builder;
-    private string $orderBy = "id";
-    private string $order = "desc";
+    public $model;
+
+    public $builder;
+
+    public string $orderBy = 'id';
+
+    public string $order = 'desc';
+
     protected array $relations = [];
 
     public function __construct($model)
@@ -23,14 +28,20 @@ class DataProvider
     public function with(array $items)
     {
         array_push($this->relations, ...$items);
+
         return $this;
     }
 
     public function get(Request $request)
     {
+        if ($request->has('tree')) {
+            $this->builder = $this->model::tree();
+        }
+
         $this->builder = $this->builder->with($this->relations);
-        if ($request->has("with")) {
-            $this->builder = $this->builder->with($request->get("with"));
+
+        if ($request->has('with')) {
+            $this->builder = $this->builder->with($request->get('with'));
         }
 
         $limit = $request->limit ?? 20;
@@ -49,12 +60,12 @@ class DataProvider
         }
     }
 
-    protected function buildSearch($filters)
+    public function buildSearch($filters)
     {
         foreach ($filters as $filter) {
             $queryParts = $this->resolveQueryParts($filter['operator'], $filter['value']);
 
-            $relations = explode(".", $filter['column']);
+            $relations = explode('.', $filter['column']);
             $column = array_pop($relations);
 
             $func = $this->getFunction($filter);
@@ -62,7 +73,13 @@ class DataProvider
             if (count($relations) == 0) {
                 $this->query($column, $queryParts['operator'], $queryParts['value'], $func);
             } else {
-                $this->queryRelated($this->snakeToCamel(implode(".", $relations)), $column, $queryParts['operator'], $queryParts['value'], $func);
+                $this->queryRelated(
+                    Str::camel(implode('.', $relations)),
+                    $column,
+                    $queryParts['operator'],
+                    $queryParts['value'],
+                    $func,
+                );
             }
         }
     }
@@ -110,11 +127,11 @@ class DataProvider
     protected function getFunction($filter)
     {
         $functions = ['where', 'orWhere', 'whereNull'];
-        if (!array_key_exists('function', $filter)) {
+        if (! array_key_exists('function', $filter)) {
             return 'where';
         }
 
-        if (!in_array($filter['function'], $functions)) {
+        if (! in_array($filter['function'], $functions)) {
             return 'where';
         }
 
@@ -130,56 +147,48 @@ class DataProvider
         return Arr::get([
             'not_equals' => [
                 'operator' => '!=',
-                'value' => $value
+                'value' => $value,
             ],
             'equals' => [
                 'operator' => '=',
-                'value' => $value
+                'value' => $value,
             ],
             'contains' => [
                 'operator' => 'LIKE',
-                'value' => "%{$value}%"
+                'value' => "%{$value}%",
             ],
             'starts_with' => [
                 'operator' => 'LIKE',
-                'value' => "{$value}%"
+                'value' => "{$value}%",
             ],
             'ends_with' => [
                 'operator' => 'LIKE',
-                'value' => "%{$value}"
+                'value' => "%{$value}",
             ],
             'greater_than' => [
                 'operator' => '>',
-                'value' => $value
+                'value' => $value,
             ],
             'less_than' => [
                 'operator' => '<',
-                'value' => $value
+                'value' => $value,
             ],
             'greater_than_or_equal_to' => [
                 'operator' => '>=',
-                'value' => $value
+                'value' => $value,
             ],
             'less_than_or_equal_to' => [
                 'operator' => '<=',
-                'value' => $value
+                'value' => $value,
             ],
             'is_null' => [
                 'operator' => 'is_null',
-                'value' => ''
-            ]
+                'value' => '',
+            ],
+            'in' => [
+                'operator' => 'in',
+                'value' => explode(',', $value),
+            ],
         ], $operator);
-    }
-
-    protected function snakeToCamel($str)
-    {
-        $words = explode('_', $str);
-        $camelCase = $words[0];
-
-        for ($i = 1; $i < count($words); $i++) {
-            $camelCase .= ucfirst($words[$i]);
-        }
-
-        return $camelCase;
     }
 }
